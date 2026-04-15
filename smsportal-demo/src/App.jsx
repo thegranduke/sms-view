@@ -384,17 +384,16 @@ export default function App() {
     setShortUrlResult(`https://sp.link/${code}`);
   };
 
-  // Tab definitions matching SMSPortal
+  // Tab definitions — icons match SMSPortal reference (blue badge / light-blue icon box)
   const msgTabs = [
     {
       id: "custom",
       label: "Custom Value",
+      // Solid blue pill with white "123" — exact match to reference
       icon: (
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-          <rect x="1" y="3" width="14" height="2" rx="1" fill="currentColor" opacity="0.8"/>
-          <rect x="1" y="7" width="10" height="2" rx="1" fill="currentColor" opacity="0.8"/>
-          <rect x="1" y="11" width="12" height="2" rx="1" fill="currentColor" opacity="0.8"/>
-        </svg>
+        <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#1970f1", color: "#fff", borderRadius: 4, padding: "1px 5px", fontSize: 9.5, fontWeight: 700, fontFamily: "ui-monospace,monospace", letterSpacing: 0.4, lineHeight: "15px", flexShrink: 0 }}>
+          123
+        </span>
       ),
       hasDropdown: true,
     },
@@ -402,45 +401,53 @@ export default function App() {
       id: "template",
       label: "SMS Template",
       icon: (
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-          <rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.4"/>
-          <line x1="4" y1="5" x2="12" y2="5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-          <line x1="4" y1="8" x2="12" y2="8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-          <line x1="4" y1="11" x2="9" y2="11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-        </svg>
+        <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#e8f0fe", borderRadius: 4, padding: "2px 3px", flexShrink: 0 }}>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="1" width="14" height="14" rx="2" stroke="#1970f1" strokeWidth="1.4"/>
+            <line x1="4" y1="5" x2="12" y2="5" stroke="#1970f1" strokeWidth="1.3" strokeLinecap="round"/>
+            <line x1="4" y1="8" x2="12" y2="8" stroke="#1970f1" strokeWidth="1.3" strokeLinecap="round"/>
+            <line x1="4" y1="11" x2="9" y2="11" stroke="#1970f1" strokeWidth="1.3" strokeLinecap="round"/>
+          </svg>
+        </span>
       ),
     },
     {
       id: "shorturl",
       label: "Short URL",
       icon: (
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-          <path d="M7 9a3 3 0 004.24.01l2-2a3 3 0 00-4.24-4.24l-1 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          <path d="M9 7a3 3 0 00-4.24-.01l-2 2a3 3 0 004.24 4.24l1-1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
+        <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#e8f0fe", borderRadius: 4, padding: "2px 3px", flexShrink: 0 }}>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <path d="M7 9a3 3 0 004.24.01l2-2a3 3 0 00-4.24-4.24l-1 1" stroke="#1970f1" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M9 7a3 3 0 00-4.24-.01l-2 2a3 3 0 004.24 4.24l1-1" stroke="#1970f1" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+        </span>
       ),
     },
     {
       id: "landing",
       label: "Landing Pages",
       icon: (
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-          <rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.4"/>
-          <line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" strokeWidth="1.2"/>
-          <circle cx="3.5" cy="3" r="0.8" fill="currentColor"/>
-          <circle cx="6" cy="3" r="0.8" fill="currentColor"/>
-          <circle cx="8.5" cy="3" r="0.8" fill="currentColor"/>
-        </svg>
+        <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#e8f0fe", borderRadius: 4, padding: "2px 3px", flexShrink: 0 }}>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="1" width="14" height="14" rx="2" stroke="#1970f1" strokeWidth="1.4"/>
+            <line x1="1" y1="5" x2="15" y2="5" stroke="#1970f1" strokeWidth="1.2"/>
+            <circle cx="3.5" cy="3" r="0.8" fill="#1970f1"/>
+            <circle cx="6" cy="3" r="0.8" fill="#1970f1"/>
+            <circle cx="8.5" cy="3" r="0.8" fill="#1970f1"/>
+          </svg>
+        </span>
       ),
     },
     {
       id: "optout",
       label: "Opt-out URL",
       icon: (
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4"/>
-          <path d="M5 5l6 6M11 5l-6 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-        </svg>
+        <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#e8f0fe", borderRadius: 4, padding: "2px 3px", flexShrink: 0 }}>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6.5" stroke="#1970f1" strokeWidth="1.4"/>
+            <path d="M5 5l6 6M11 5l-6 6" stroke="#1970f1" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        </span>
       ),
     },
   ];
@@ -480,17 +487,17 @@ export default function App() {
         .sp-input:focus { border-color: #1970f1; }
         .sp-input::placeholder { color: #a0aec0; }
 
-        /* Message tabs — clean, no boxy individual borders */
+        /* Message tabs — match SMSPortal reference exactly */
         .msg-tab {
-          display: flex; align-items: center; gap: 5px;
-          padding: 8px 13px; font-size: 12.5px; font-weight: 500;
-          color: #64748b; cursor: pointer;
+          display: flex; align-items: center; gap: 6px;
+          padding: 8px 14px; font-size: 12.5px; font-weight: 500;
+          color: #4a5568; cursor: pointer;
           border-right: 1px solid #e8ecf1; border-bottom: 2px solid transparent;
-          background: transparent; white-space: nowrap; user-select: none; flex-shrink: 0;
-          transition: color 0.15s, border-bottom-color 0.15s, background 0.15s;
+          background: #fff; white-space: nowrap; user-select: none; flex-shrink: 0;
+          transition: color 0.15s, background 0.15s;
         }
         .msg-tab:hover { color: #1970f1; background: #f5f8ff; }
-        .msg-tab.active { color: #1970f1; font-weight: 600; border-bottom-color: #1970f1; background: #fff; }
+        .msg-tab.active { color: #1970f1; font-weight: 600; border-bottom-color: #1970f1; }
         .msg-tab:last-child { border-right: none; }
 
         .btn-primary {
@@ -643,7 +650,7 @@ export default function App() {
                     <div style={{ border: "1px solid #e2e8f0", borderRadius: 6, overflow: "hidden" }}>
 
                       {/* Tab bar */}
-                      <div style={{ display: "flex", borderBottom: "1px solid #e8ecf1", background: "#f8f9fb", overflowX: "auto", flexShrink: 0 }}>
+                      <div style={{ display: "flex", borderBottom: "1px solid #e8ecf1", background: "#fff", overflowX: "auto", flexShrink: 0 }}>
                         {msgTabs.map((tab) => (
                           <button
                             key={tab.id}
