@@ -140,8 +140,8 @@ const IPhoneShell = memo(({ message, preview, previewLoading }) => {
             <svg width="22" height="15" viewBox="0 0 24 17" fill="none"><rect x="1" y="1" width="14" height="14" rx="2.5" stroke="#007AFF" strokeWidth="1.8"/><path d="M15 5.5l7.5-3.5v12L15 10.5" stroke="#007AFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
         </div>
-        {/* Chat area */}
-        <div style={{ flex: 1, overflowY: "auto", background: "#000", padding: "9px 8px 5px", display: "flex", flexDirection: "column", gap: 3, alignItems: "flex-start" }}>
+        {/* Chat area — scrolls internally; hide scrollbar for clean look */}
+        <div className="iphone-chat" style={{ flex: 1, overflowY: "auto", overflowX: "hidden", background: "#000", padding: "9px 8px 5px", display: "flex", flexDirection: "column", gap: 3, alignItems: "flex-start", msOverflowStyle: "none", scrollbarWidth: "none" }}>
           <div style={{ alignSelf: "center", fontSize: 9.5, color: "#636366", marginBottom: 7 }}>iMessage · Today 9:41 AM</div>
           {empty && !previewLoading && (
             <div style={{ alignSelf: "center", marginTop: 18, display: "flex", flexDirection: "column", alignItems: "center", gap: 7 }}>
@@ -257,14 +257,12 @@ function TopBar({ onToggle }) {
       </button>
 
       {/* Logo — full on desktop, icon-only on mobile */}
-      <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
-        <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg,#1970f1,#5856d6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill="white"/></svg>
-        </div>
-        <div className="hide-sm">
-          <div style={{ fontSize: 8.5, fontWeight: 600, color: "#a0aec0", textTransform: "uppercase", letterSpacing: 0.9, lineHeight: 1 }}>link mobility</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#1b2336", letterSpacing: -0.4, lineHeight: 1.25 }}>smsportal</div>
-        </div>
+      <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+        <img
+          src="/smsportal-logo.jpeg"
+          alt="SMSPortal"
+          style={{ height: 38, width: "auto", objectFit: "contain", display: "block" }}
+        />
       </div>
 
       <div style={{ flex: 1 }} />
@@ -313,6 +311,33 @@ function TopBar({ onToggle }) {
   );
 }
 
+// ─── Demo data ────────────────────────────────────────────────────────────────
+const SMS_TEMPLATES = [
+  { id: "t1", name: "Flash Sale",           icon: "🔥", body: "Flash Sale! Get 30% off everything this weekend only. Shop now: {link}\n\nReply STOP to opt out." },
+  { id: "t2", name: "Appointment Reminder", icon: "📅", body: "Hi {name}, reminder: you have an appointment tomorrow. Reply YES to confirm or call us to reschedule. – {company}" },
+  { id: "t3", name: "Welcome Message",      icon: "🎉", body: "Welcome to {company}, {name}! 🎉 Use code WELCOME15 for 15% off your first purchase. {link}" },
+  { id: "t4", name: "Order Shipped",        icon: "📦", body: "Hi {name}, your order #{code} has shipped! Track it: {link}\nExpected delivery: {date}. Reply STOP to opt out." },
+  { id: "t5", name: "Review Request",       icon: "⭐", body: "Hi {name}, thanks for your recent purchase! We'd love your feedback: {link} – {company}" },
+];
+
+const LANDING_PAGES = [
+  { id: "lp1", name: "Summer Promo 2025",   desc: "Seasonal promotional offer with countdown timer", url: "https://sp.link/SumPro25" },
+  { id: "lp2", name: "Appointment Booking", desc: "Online booking form with calendar availability",   url: "https://sp.link/BookAppt" },
+  { id: "lp3", name: "Feedback Form",       desc: "Quick survey and customer feedback form",          url: "https://sp.link/FeedBk1" },
+  { id: "lp4", name: "Product Launch",      desc: "New product announcement with CTA button",         url: "https://sp.link/NewProd" },
+];
+
+const OPT_OUT_OPTIONS = [
+  { id: "o1", label: "Keyword reply",   preview: "Reply STOP to unsubscribe." },
+  { id: "o2", label: "Link + keyword",  preview: "Unsubscribe: https://sp.link/stop — or reply STOP." },
+  { id: "o3", label: "Formal (POPIA)",  preview: "To opt out of future messages, reply OPTOUT or visit https://sp.link/stop" },
+];
+
+function randomCode(len = 6) {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+  return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
+
 // ─── Chevron icon ─────────────────────────────────────────────────────────────
 const ChevronDown = () => (
   <svg width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1l4.5 4 4.5-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -325,8 +350,10 @@ export default function App() {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [lastFetchedUrl, setLastFetchedUrl] = useState(null);
   const [sidebarOpen, setSidebarOpen]   = useState(false);
-  const [showVars, setShowVars]         = useState(false);
+  const [activeTab, setActiveTab]       = useState(null);
   const [recipients, setRecipients]     = useState("");
+  const [shortUrlInput, setShortUrlInput] = useState("");
+  const [shortUrlResult, setShortUrlResult] = useState(null);
   const debounceRef = useRef(null);
 
   const sms = smsLimit(message);
@@ -348,7 +375,14 @@ export default function App() {
 
   const handleChange = useCallback((e) => setMessage(e.target.value), []);
 
+  const appendToMessage = (text) => setMessage((m) => (m ? m + "\n" + text : text));
   const insertTag = (tag) => setMessage((m) => m + tag);
+
+  const handleShortenUrl = () => {
+    if (!shortUrlInput.trim()) return;
+    const code = randomCode();
+    setShortUrlResult(`https://sp.link/${code}`);
+  };
 
   // Tab definitions matching SMSPortal
   const msgTabs = [
@@ -423,6 +457,7 @@ export default function App() {
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.13); border-radius: 3px; }
+        .iphone-chat::-webkit-scrollbar { display: none; }
 
         .nav-parent:hover { background: rgba(255,255,255,0.07); }
         .nav-child:hover  { background: rgba(255,255,255,0.05) !important; }
@@ -507,7 +542,7 @@ export default function App() {
 
         /* Content grid: side-by-side on ≥900px, stacked on <900px */
         .content-grid {
-          display: flex; gap: 20px; align-items: flex-start; max-width: 1200px;
+          display: flex; gap: 20px; align-items: flex-start; width: 100%;
         }
         .form-card { flex: 1; min-width: 0; background: #fff; border-radius: 6px; border: 1px solid #e2e8f0; overflow: hidden; }
         .preview-panel { width: 316px; flex-shrink: 0; }
@@ -607,13 +642,13 @@ export default function App() {
                     {/* Message editor card */}
                     <div style={{ border: "1px solid #e2e8f0", borderRadius: 6, overflow: "hidden" }}>
 
-                      {/* Tab bar — nowrap + horizontal scroll so tabs never wrap */}
+                      {/* Tab bar */}
                       <div style={{ display: "flex", borderBottom: "1px solid #e8ecf1", background: "#f8f9fb", overflowX: "auto", flexShrink: 0 }}>
                         {msgTabs.map((tab) => (
                           <button
                             key={tab.id}
-                            className={`msg-tab${tab.id === "custom" ? " active" : ""}`}
-                            onClick={tab.id === "custom" ? () => setShowVars((v) => !v) : undefined}
+                            className={`msg-tab${activeTab === tab.id ? " active" : ""}`}
+                            onClick={() => setActiveTab((t) => (t === tab.id ? null : tab.id))}
                           >
                             {tab.icon}
                             {tab.label}
@@ -622,12 +657,102 @@ export default function App() {
                         ))}
                       </div>
 
-                      {/* Variable pills dropdown */}
-                      {showVars && (
+                      {/* ── Custom Value panel ── */}
+                      {activeTab === "custom" && (
                         <div style={{ padding: "8px 12px", background: "#f7f9fc", borderBottom: "1px solid #e5eaf2", display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center" }}>
                           <span style={{ fontSize: 11.5, color: "#718096", marginRight: 4 }}>Insert:</span>
-                          {["{name}", "{link}", "{date}", "{company}"].map((tag) => (
-                            <button key={tag} className="var-pill" onClick={() => { insertTag(tag); setShowVars(false); }}>{tag}</button>
+                          {["{name}", "{link}", "{date}", "{company}", "{code}"].map((tag) => (
+                            <button key={tag} className="var-pill" onClick={() => { insertTag(tag); setActiveTab(null); }}>{tag}</button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* ── SMS Template panel ── */}
+                      {activeTab === "template" && (
+                        <div style={{ background: "#f7f9fc", borderBottom: "1px solid #e5eaf2" }}>
+                          <div style={{ padding: "7px 12px 4px", fontSize: 11.5, color: "#718096", fontWeight: 500 }}>Select a template to insert:</div>
+                          {SMS_TEMPLATES.map((t) => (
+                            <button
+                              key={t.id}
+                              onClick={() => { setMessage(t.body); setActiveTab(null); }}
+                              style={{ display: "block", width: "100%", textAlign: "left", padding: "7px 12px", background: "none", border: "none", borderTop: "1px solid #edf0f4", cursor: "pointer", fontFamily: "inherit" }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = "#eef3ff"}
+                              onMouseLeave={(e) => e.currentTarget.style.background = "none"}
+                            >
+                              <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1b2336", marginBottom: 2 }}>{t.icon} {t.name}</div>
+                              <div style={{ fontSize: 11.5, color: "#718096", lineHeight: 1.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>{t.body.slice(0, 72)}…</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* ── Short URL panel ── */}
+                      {activeTab === "shorturl" && (
+                        <div style={{ padding: "10px 12px", background: "#f7f9fc", borderBottom: "1px solid #e5eaf2" }}>
+                          <div style={{ fontSize: 11.5, color: "#718096", marginBottom: 7 }}>Shorten a URL and insert it into your message:</div>
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            <input
+                              className="sp-input"
+                              style={{ flex: 1, minWidth: 140, fontSize: 13 }}
+                              placeholder="https://your-long-url.com/page"
+                              value={shortUrlInput}
+                              onChange={(e) => { setShortUrlInput(e.target.value); setShortUrlResult(null); }}
+                              onKeyDown={(e) => e.key === "Enter" && handleShortenUrl()}
+                            />
+                            <button className="btn-primary" style={{ padding: "7px 14px", fontSize: 13 }} onClick={handleShortenUrl}>Shorten</button>
+                          </div>
+                          {shortUrlResult && (
+                            <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 10, padding: "7px 10px", background: "#eef3ff", borderRadius: 6, border: "1px solid #c3d9ff" }}>
+                              <span style={{ fontSize: 12, color: "#1970f1", fontFamily: "ui-monospace, monospace", flex: 1 }}>{shortUrlResult}</span>
+                              <button className="btn-primary" style={{ padding: "4px 11px", fontSize: 12 }} onClick={() => { appendToMessage(shortUrlResult); setShortUrlInput(""); setShortUrlResult(null); setActiveTab(null); }}>Insert</button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* ── Landing Pages panel ── */}
+                      {activeTab === "landing" && (
+                        <div style={{ background: "#f7f9fc", borderBottom: "1px solid #e5eaf2" }}>
+                          <div style={{ padding: "7px 12px 4px", fontSize: 11.5, color: "#718096", fontWeight: 500 }}>Insert a landing page link:</div>
+                          {LANDING_PAGES.map((lp) => (
+                            <div
+                              key={lp.id}
+                              style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 12px", borderTop: "1px solid #edf0f4", cursor: "default" }}
+                            >
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1b2336" }}>{lp.name}</div>
+                                <div style={{ fontSize: 11, color: "#718096" }}>{lp.desc}</div>
+                                <div style={{ fontSize: 11, color: "#1970f1", fontFamily: "ui-monospace, monospace", marginTop: 1 }}>{lp.url}</div>
+                              </div>
+                              <button
+                                className="btn-primary"
+                                style={{ padding: "4px 11px", fontSize: 12, flexShrink: 0 }}
+                                onClick={() => { appendToMessage(lp.url); setActiveTab(null); }}
+                              >Insert</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* ── Opt-out URL panel ── */}
+                      {activeTab === "optout" && (
+                        <div style={{ background: "#f7f9fc", borderBottom: "1px solid #e5eaf2" }}>
+                          <div style={{ padding: "7px 12px 4px", fontSize: 11.5, color: "#718096", fontWeight: 500 }}>Append an opt-out message:</div>
+                          {OPT_OUT_OPTIONS.map((o) => (
+                            <div
+                              key={o.id}
+                              style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 12px", borderTop: "1px solid #edf0f4" }}
+                            >
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1b2336", marginBottom: 1 }}>{o.label}</div>
+                                <div style={{ fontSize: 11.5, color: "#718096", fontStyle: "italic" }}>"{o.preview}"</div>
+                              </div>
+                              <button
+                                className="btn-primary"
+                                style={{ padding: "4px 11px", fontSize: 12, flexShrink: 0 }}
+                                onClick={() => { appendToMessage(o.preview); setActiveTab(null); }}
+                              >Insert</button>
+                            </div>
                           ))}
                         </div>
                       )}
