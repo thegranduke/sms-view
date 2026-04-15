@@ -492,7 +492,7 @@ export default function App() {
           display: flex; align-items: center; gap: 6px;
           padding: 8px 14px; font-size: 12.5px; font-weight: 500;
           color: #4a5568; cursor: pointer;
-          border-right: 1px solid #e8ecf1; border-bottom: 2px solid transparent;
+          border: none; border-right: 1px solid #e8ecf1; border-bottom: 2px solid transparent;
           background: #fff; white-space: nowrap; user-select: none; flex-shrink: 0;
           transition: color 0.15s, background 0.15s;
         }
