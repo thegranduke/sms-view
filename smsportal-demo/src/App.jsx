@@ -201,19 +201,26 @@ const NAV = [
 ];
 
 function Sidebar({ open }) {
+  // open=true  → full 222px with labels
+  // open=false → 56px icon-only rail
+  const w = open ? 222 : 56;
   return (
-    <aside style={{ width: 222, background: "#1b2336", flexShrink: 0, overflowY: "auto", display: open ? "flex" : "none", flexDirection: "column", transition: "width 0.2s" }}>
+    <aside style={{ width: w, minWidth: w, background: "#1b2336", flexShrink: 0, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column", transition: "width 0.22s cubic-bezier(0.4,0,0.2,1), min-width 0.22s cubic-bezier(0.4,0,0.2,1)" }}>
       {NAV.map((item) => (
         <div key={item.label}>
-          <div className="nav-parent" style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 16px", color: item.expanded ? "#fff" : "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 13.5, fontWeight: item.expanded ? 500 : 400 }}>
+          <div
+            className="nav-parent"
+            title={!open ? item.label : undefined}
+            style={{ display: "flex", alignItems: "center", gap: open ? 10 : 0, padding: open ? "11px 16px" : "13px 0", justifyContent: open ? "flex-start" : "center", color: item.expanded ? "#fff" : "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 13.5, fontWeight: item.expanded ? 500 : 400, overflow: "hidden", whiteSpace: "nowrap" }}
+          >
             <NavIcon type={item.type} />
-            <span style={{ flex: 1 }}>{item.label}</span>
-            {(item.children || item.chevron) && (
+            {open && <span style={{ flex: 1 }}>{item.label}</span>}
+            {open && (item.children || item.chevron) && (
               <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             )}
           </div>
-          {item.expanded && item.children?.map((child) => (
-            <div key={child} className={child === "Send Message" ? "" : "nav-child"} style={{ padding: "9px 16px 9px 46px", fontSize: 13, color: child === "Send Message" ? "#fff" : "rgba(255,255,255,0.48)", cursor: "pointer", background: child === "Send Message" ? "rgba(25,112,241,0.18)" : "transparent", borderLeft: `3px solid ${child === "Send Message" ? "#1970f1" : "transparent"}` }}>
+          {open && item.expanded && item.children?.map((child) => (
+            <div key={child} className={child === "Send Message" ? "" : "nav-child"} style={{ padding: "9px 16px 9px 46px", fontSize: 13, color: child === "Send Message" ? "#fff" : "rgba(255,255,255,0.48)", cursor: "pointer", background: child === "Send Message" ? "rgba(25,112,241,0.18)" : "transparent", borderLeft: `3px solid ${child === "Send Message" ? "#1970f1" : "transparent"}`, whiteSpace: "nowrap" }}>
               {child}
             </div>
           ))}
@@ -223,21 +230,38 @@ function Sidebar({ open }) {
   );
 }
 
+// ─── Avatar button (shared desktop + mobile) ──────────────────────────────────
+const AvatarBtn = () => (
+  <div className="user-btn" style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", padding: "4px 6px", borderRadius: 8 }}>
+    <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#edf0f5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#718096" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="7" r="4" stroke="#718096" strokeWidth="1.8"/></svg>
+    </div>
+    <svg className="hide-sm" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="#a0aec0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+  </div>
+);
+
+const BellBtn = () => (
+  <div style={{ position: "relative", cursor: "pointer", padding: 4 }}>
+    <svg width="19" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="#718096" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+    <div style={{ position: "absolute", top: 0, right: 0, width: 16, height: 16, borderRadius: "50%", background: "#e53e3e", color: "#fff", fontSize: 9, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>1</div>
+  </div>
+);
+
 // ─── Top bar ──────────────────────────────────────────────────────────────────
 function TopBar({ onToggle }) {
   return (
-    <header style={{ height: 62, background: "#fff", borderBottom: "1px solid #e5eaf2", display: "flex", alignItems: "center", padding: "0 20px", gap: 12, flexShrink: 0, zIndex: 100 }}>
+    <header style={{ height: 62, background: "#fff", borderBottom: "1px solid #e5eaf2", display: "flex", alignItems: "center", padding: "0 16px", gap: 10, flexShrink: 0, zIndex: 100 }}>
       {/* Hamburger */}
-      <button className="icon-btn" onClick={onToggle} style={{ background: "none", border: "none", cursor: "pointer", padding: "6px 8px", borderRadius: 6, display: "flex", flexDirection: "column", gap: 4 }}>
+      <button className="icon-btn" onClick={onToggle} style={{ background: "none", border: "none", cursor: "pointer", padding: "6px 8px", borderRadius: 6, display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
         {[0,1,2].map(i => <div key={i} style={{ width: 20, height: 2, background: "#4a5568", borderRadius: 1 }} />)}
       </button>
 
-      {/* Logo */}
-      <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+      {/* Logo — full on desktop, icon-only on mobile */}
+      <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
         <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg,#1970f1,#5856d6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill="white"/></svg>
         </div>
-        <div>
+        <div className="hide-sm">
           <div style={{ fontSize: 8.5, fontWeight: 600, color: "#a0aec0", textTransform: "uppercase", letterSpacing: 0.9, lineHeight: 1 }}>link mobility</div>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#1b2336", letterSpacing: -0.4, lineHeight: 1.25 }}>smsportal</div>
         </div>
@@ -246,52 +270,45 @@ function TopBar({ onToggle }) {
       <div style={{ flex: 1 }} />
 
       {/* Buy Now */}
-      <button className="btn-buy" style={{ background: "#1970f1", color: "#fff", border: "none", borderRadius: 22, padding: "7px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="white" strokeWidth="2.2" strokeLinejoin="round"/><line x1="3" y1="6" x2="21" y2="6" stroke="white" strokeWidth="2.2"/><path d="M16 10a4 4 0 01-8 0" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
+      <button className="btn-buy" style={{ background: "#1970f1", color: "#fff", border: "none", borderRadius: 22, padding: "7px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="white" strokeWidth="2.2" strokeLinejoin="round"/><line x1="3" y1="6" x2="21" y2="6" stroke="white" strokeWidth="2.2"/><path d="M16 10a4 4 0 01-8 0" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
         Buy Now
       </button>
 
-      {/* Credits */}
-      <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "0 4px", borderLeft: "1px solid #e5eaf2", paddingLeft: 12 }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#c8d0dd" strokeWidth="1.5"/><path d="M14.5 9.5c-.4-.9-1.3-1.5-2.5-1.5-1.7 0-3 1.1-3 2.5s1.3 2.5 3 2.5 3 1.1 3 2.5-1.3 2.5-3 2.5c-1.2 0-2.1-.6-2.5-1.5M12 7v10" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"/></svg>
+      {/* Credits — desktop only */}
+      <div className="hide-sm" style={{ display: "flex", alignItems: "center", gap: 7, paddingLeft: 10, borderLeft: "1px solid #e5eaf2" }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#c8d0dd" strokeWidth="1.5"/><path d="M14.5 9.5c-.4-.9-1.3-1.5-2.5-1.5-1.7 0-3 1.1-3 2.5s1.3 2.5 3 2.5 3 1.1 3 2.5-1.3 2.5-3 2.5c-1.2 0-2.1-.6-2.5-1.5M12 7v10" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"/></svg>
         <div>
-          <div style={{ fontSize: 10, color: "#a0aec0", lineHeight: 1 }}>Credits</div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#1b2336", lineHeight: 1.25 }}>99</div>
+          <div style={{ fontSize: 9.5, color: "#a0aec0", lineHeight: 1 }}>Credits</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#1b2336", lineHeight: 1.3 }}>99</div>
         </div>
       </div>
 
-      {/* Status */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 6px" }}>
+      {/* Status — desktop only */}
+      <div className="hide-sm" style={{ display: "flex", alignItems: "center", gap: 5 }}>
         <div style={{ width: 9, height: 9, borderRadius: "50%", background: "#48bb78" }} />
         <span style={{ fontSize: 13, color: "#4a5568" }}>Status</span>
       </div>
 
-      {/* Help */}
-      <div className="icon-btn" style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid #c8d0dd", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-        <span style={{ fontSize: 14, color: "#718096", fontWeight: 700, lineHeight: 1 }}>?</span>
+      {/* Help — desktop only */}
+      <div className="icon-btn hide-sm" style={{ width: 28, height: 28, borderRadius: "50%", border: "1.5px solid #c8d0dd", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+        <span style={{ fontSize: 13, color: "#718096", fontWeight: 700, lineHeight: 1 }}>?</span>
       </div>
 
-      {/* Bell */}
-      <div style={{ position: "relative", cursor: "pointer", padding: 4 }}>
-        <svg width="19" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="#718096" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        <div style={{ position: "absolute", top: 0, right: 0, width: 16, height: 16, borderRadius: "50%", background: "#e53e3e", color: "#fff", fontSize: 9, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>1</div>
-      </div>
+      {/* Bell — always visible */}
+      <BellBtn />
 
-      <div style={{ width: 1, height: 30, background: "#e5eaf2" }} />
-
-      {/* User */}
-      <div className="user-btn" style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", padding: "4px 6px", borderRadius: 8 }}>
-        <div>
+      {/* Separator + name — desktop only */}
+      <div className="hide-sm" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ width: 1, height: 28, background: "#e5eaf2" }} />
+        <div style={{ cursor: "default" }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: "#1b2336", lineHeight: 1.1 }}>Eino</div>
-          <div style={{ fontSize: 10.5, color: "#a0aec0", lineHeight: 1.2 }}>15 Apr 18:34</div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#edf0f5", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#718096" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="7" r="4" stroke="#718096" strokeWidth="1.8"/></svg>
-          </div>
-          <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="#a0aec0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <div style={{ fontSize: 10, color: "#a0aec0", lineHeight: 1.2 }}>15 Apr 18:34</div>
         </div>
       </div>
+
+      {/* Avatar — always visible */}
+      <AvatarBtn />
     </header>
   );
 }
@@ -307,7 +324,7 @@ export default function App() {
   const [preview, setPreview]           = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [lastFetchedUrl, setLastFetchedUrl] = useState(null);
-  const [sidebarOpen, setSidebarOpen]   = useState(true);
+  const [sidebarOpen, setSidebarOpen]   = useState(false);
   const [showVars, setShowVars]         = useState(false);
   const [recipients, setRecipients]     = useState("");
   const debounceRef = useRef(null);
@@ -407,29 +424,39 @@ export default function App() {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.13); border-radius: 3px; }
 
-        .nav-parent:hover { background: rgba(255,255,255,0.06); }
+        .nav-parent:hover { background: rgba(255,255,255,0.07); }
         .nav-child:hover  { background: rgba(255,255,255,0.05) !important; }
         .icon-btn:hover   { background: #f0f3f8 !important; }
         .btn-buy:hover    { background: #1460d6 !important; }
         .user-btn:hover   { background: #f7f9fc; }
 
+        /* Responsive hide/show helpers */
+        .hide-sm { }
+        @media (max-width: 640px) {
+          .hide-sm { display: none !important; }
+          aside { width: 0 !important; min-width: 0 !important; overflow: hidden !important; }
+        }
+
         .sp-input {
           width: 100%; padding: 8px 12px; font-size: 13.5px; font-family: inherit;
           border: 1px solid #d0d7e3; border-radius: 6px; color: #1b2336;
-          background: #fff; transition: border-color 0.15s, box-shadow 0.15s;
+          background: #fff; transition: border-color 0.15s;
         }
         .sp-input:focus { border-color: #1970f1; }
         .sp-input::placeholder { color: #a0aec0; }
 
+        /* Message tabs — clean, no boxy individual borders */
         .msg-tab {
           display: flex; align-items: center; gap: 5px;
-          padding: 7px 12px; font-size: 12.5px; font-weight: 500;
-          color: #4a5568; cursor: pointer; border-right: 1px solid #e5eaf2;
-          background: #fafbfd; white-space: nowrap; user-select: none; flex-shrink: 0;
-          transition: background 0.15s, color 0.15s;
+          padding: 8px 13px; font-size: 12.5px; font-weight: 500;
+          color: #64748b; cursor: pointer;
+          border-right: 1px solid #e8ecf1; border-bottom: 2px solid transparent;
+          background: transparent; white-space: nowrap; user-select: none; flex-shrink: 0;
+          transition: color 0.15s, border-bottom-color 0.15s, background 0.15s;
         }
-        .msg-tab:hover { background: #eef3ff; color: #1970f1; }
-        .msg-tab.active { background: #fff; color: #1970f1; font-weight: 600; border-bottom: 2px solid #1970f1; }
+        .msg-tab:hover { color: #1970f1; background: #f5f8ff; }
+        .msg-tab.active { color: #1970f1; font-weight: 600; border-bottom-color: #1970f1; background: #fff; }
+        .msg-tab:last-child { border-right: none; }
 
         .btn-primary {
           background: #1970f1; color: #fff; border: none; border-radius: 6px;
@@ -441,15 +468,15 @@ export default function App() {
 
         .btn-outline {
           background: #fff; color: #1970f1; border: 1.5px solid #1970f1;
-          border-radius: 6px; padding: 7px 14px; font-size: 13px; font-weight: 600;
+          border-radius: 6px; padding: 7px 13px; font-size: 13px; font-weight: 600;
           cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px;
-          transition: background 0.15s; white-space: nowrap;
+          transition: background 0.15s; white-space: nowrap; flex-shrink: 0;
         }
         .btn-outline:hover { background: #ebf3ff; }
 
         .btn-ghost {
           background: none; border: 1px solid #d0d7e3; border-radius: 6px;
-          padding: 7px 14px; font-size: 13px; color: #4a5568;
+          padding: 7px 13px; font-size: 13px; color: #4a5568;
           cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px;
           transition: background 0.12s, border-color 0.12s;
         }
@@ -478,12 +505,25 @@ export default function App() {
         .adv-input:focus { outline: none; border-color: #1970f1; }
         .adv-input::placeholder { color: #b0bcc8; }
 
+        /* Content grid: side-by-side on ≥900px, stacked on <900px */
+        .content-grid {
+          display: flex; gap: 20px; align-items: flex-start; max-width: 1200px;
+        }
+        .form-card { flex: 1; min-width: 0; background: #fff; border-radius: 6px; border: 1px solid #e2e8f0; overflow: hidden; }
+        .preview-panel { width: 316px; flex-shrink: 0; }
+
         @media (max-width: 900px) {
-          .preview-panel { display: none !important; }
+          .content-grid { flex-direction: column; }
+          .form-card { width: 100%; }
+          .preview-panel { width: 100% !important; }
+          .preview-inner { flex-direction: row !important; align-items: flex-start !important; gap: 20px !important; }
+          .preview-phone-wrap { flex: 0 0 auto; }
+          .preview-meta { flex: 1; padding-top: 8px; }
         }
         @media (max-width: 640px) {
-          aside { display: none !important; }
-          .topbar-credits, .topbar-status, .topbar-help { display: none !important; }
+          .optout-row { flex-wrap: wrap !important; }
+          .optout-label { white-space: normal !important; }
+          .preview-inner { flex-direction: column !important; align-items: center !important; }
         }
       `}</style>
 
@@ -494,11 +534,11 @@ export default function App() {
           <Sidebar open={sidebarOpen} />
 
           {/* Scrollable content */}
-          <main style={{ flex: 1, overflowY: "auto", background: "#f4f6f9", padding: "20px 24px 40px" }}>
-            <div style={{ display: "flex", gap: 20, alignItems: "flex-start", maxWidth: 1200 }}>
+          <main style={{ flex: 1, overflowY: "auto", overflowX: "hidden", background: "#f4f6f9", padding: "20px 24px 40px" }}>
+            <div className="content-grid">
 
               {/* ── Send Message form card ── */}
-              <div style={{ flex: 1, minWidth: 0, background: "#fff", borderRadius: 6, border: "1px solid #e2e8f0" }}>
+              <div className="form-card">
 
                 {/* Card header */}
                 <div style={{ padding: "18px 24px 14px", borderBottom: "1px solid #edf0f4" }}>
@@ -539,7 +579,7 @@ export default function App() {
                   </div>
 
                   {/* Opt-out / recipients row */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "nowrap" }}>
+                  <div className="optout-row" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "nowrap" }}>
                     {/* Gear + chevron compound button */}
                     <div style={{ display: "flex", alignItems: "stretch", border: "1px solid #1970f1", borderRadius: 4, overflow: "hidden", height: 30, flexShrink: 0 }}>
                       <div style={{ width: 30, background: "#1970f1", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -549,7 +589,7 @@ export default function App() {
                         <ChevronDown />
                       </div>
                     </div>
-                    <label style={{ fontSize: 13, color: "#4a5568", cursor: "pointer", userSelect: "none", display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+                    <label className="optout-label" style={{ fontSize: 13, color: "#4a5568", cursor: "pointer", userSelect: "none", display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
                       <input type="checkbox" defaultChecked style={{ accentColor: "#1970f1", width: 14, height: 14, flexShrink: 0 }} />
                       Check Opt-outs &amp; Duplicate Numbers
                     </label>
@@ -565,10 +605,10 @@ export default function App() {
                     </label>
 
                     {/* Message editor card */}
-                    <div style={{ border: "1px solid #d0d7e3", borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ border: "1px solid #e2e8f0", borderRadius: 6, overflow: "hidden" }}>
 
                       {/* Tab bar — nowrap + horizontal scroll so tabs never wrap */}
-                      <div style={{ display: "flex", borderBottom: "1px solid #e2e8f0", background: "#f8fafc", overflowX: "auto", flexShrink: 0 }}>
+                      <div style={{ display: "flex", borderBottom: "1px solid #e8ecf1", background: "#f8f9fb", overflowX: "auto", flexShrink: 0 }}>
                         {msgTabs.map((tab) => (
                           <button
                             key={tab.id}
@@ -654,41 +694,46 @@ export default function App() {
               </div>
 
               {/* ── Device Preview panel ── */}
-              <div className="preview-panel" style={{ width: 316, flexShrink: 0 }}>
+              <div className="preview-panel">
                 <div style={{ background: "#fff", borderRadius: 6, border: "1px solid #e2e8f0" }}>
 
-                  {/* Header — same visual weight as the form header */}
-                  <div style={{ padding: "18px 18px 14px", borderBottom: "1px solid #edf0f4" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="#a0aec0" strokeWidth="1.8"/><line x1="12" y1="18" x2="12" y2="18.01" stroke="#a0aec0" strokeWidth="2.2" strokeLinecap="round"/></svg>
-                      <h2 style={{ fontSize: 16, fontWeight: 700, color: "#1b2336", letterSpacing: -0.1, textAlign: "left" }}>Device Preview</h2>
+                  {/* Header */}
+                  <div style={{ padding: "16px 20px 13px", borderBottom: "1px solid #edf0f4" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="#a0aec0" strokeWidth="1.8"/><line x1="12" y1="18" x2="12" y2="18.01" stroke="#a0aec0" strokeWidth="2.2" strokeLinecap="round"/></svg>
+                      <h2 style={{ fontSize: 16, fontWeight: 700, color: "#1b2336", letterSpacing: -0.1 }}>Device Preview</h2>
                     </div>
-                    <p style={{ fontSize: 12.5, color: "#718096", textAlign: "left" }}>
+                    <p style={{ fontSize: 12.5, color: "#718096" }}>
                       See how your message appears on an iPhone before sending.
                     </p>
                   </div>
 
-                  {/* Phone */}
-                  <div style={{ padding: "20px 16px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                    <IPhoneShell message={message} preview={preview} previewLoading={previewLoading} />
+                  {/* Phone + meta — side by side on tablet, stacked on mobile */}
+                  <div className="preview-inner" style={{ padding: "20px 18px 18px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+                    <div className="preview-phone-wrap">
+                      <IPhoneShell message={message} preview={preview} previewLoading={previewLoading} />
+                    </div>
 
-                    {/* URL status — plain text, no pill */}
-                    {detectedUrl && (
-                      <p style={{ fontSize: 11.5, color: previewLoading ? "#dd6b20" : preview ? "#276749" : "#9b2c2c", textAlign: "center" }}>
-                        {previewLoading ? "Fetching link preview…" : preview ? `Link preview loaded · ${preview.siteName}` : "No preview available for this URL"}
-                      </p>
-                    )}
+                    <div className="preview-meta" style={{ width: "100%" }}>
+                      {/* URL status */}
+                      {detectedUrl && (
+                        <p style={{ fontSize: 12, color: previewLoading ? "#c05621" : preview ? "#276749" : "#9b2c2c", marginBottom: 10 }}>
+                          {previewLoading ? "⏳ Fetching link preview…" : preview ? `✓ Link preview loaded · ${preview.siteName}` : "✕ No preview available for this URL"}
+                        </p>
+                      )}
+
+                      {/* Encoding info */}
+                      <div style={{ borderTop: "1px solid #edf0f4", paddingTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: 12, color: "#718096" }}>
+                          Encoding: <strong style={{ color: sms.gsm ? "#276749" : "#c05621", fontWeight: 600 }}>{sms.gsm ? "GSM-7" : "Unicode"}</strong>
+                        </span>
+                        <span style={{ fontSize: 12, color: "#718096" }}>
+                          {sms.remaining} chars left
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Footer — encoding info, same style as char count in form */}
-                  <div style={{ borderTop: "1px solid #edf0f4", padding: "10px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 12, color: "#718096" }}>
-                      Encoding: <strong style={{ color: sms.gsm ? "#276749" : "#dd6b20", fontWeight: 600 }}>{sms.gsm ? "GSM-7" : "Unicode"}</strong>
-                    </span>
-                    <span style={{ fontSize: 12, color: "#718096" }}>
-                      {sms.remaining} chars left
-                    </span>
-                  </div>
                 </div>
               </div>
 
