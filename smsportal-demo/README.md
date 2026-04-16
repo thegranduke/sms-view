@@ -1,3 +1,22 @@
+## SMSPortal iPhone Preview Demo
+
+This is a small React/Vite demo that recreates the **SMS Portal** “Send Message” dashboard with an embedded **live iPhone preview**. As you type an SMS (or click the toolbar buttons for Template / Short URL / Landing Page / Opt‑out), the right‑hand iPhone updates in real time, including rich link previews for URLs that support unfurling (e.g. YouTube, news sites).
+
+### Tech & structure
+- **Stack**: React + Vite, single–page app (`src/App.jsx`, `src/main.jsx`, `src/index.css`).
+- **Key pieces**:
+  - SMS length / parts counter (GSM‑7 vs Unicode).
+  - Link preview fetching via `noembed` with an `allorigins` + domain fallback.
+  - Pixel‑aligned iOS dark‑mode iMessage shell that scrolls internally like a real device.
+
+### Running locally
+```bash
+npm install
+npm run dev
+```
+
+Open the printed URL in your browser and resize the window to see both the desktop dashboard and the responsive mobile layout. This repo is intended purely as a **product demo** for showcasing an SMSPortal feature idea, not as production code.
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

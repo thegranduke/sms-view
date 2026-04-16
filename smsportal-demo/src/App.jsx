@@ -17,12 +17,18 @@ const smsLimit = (str) => {
 
 // ─── Link preview ─────────────────────────────────────────────────────────────
 async function fetchLinkPreview(url) {
+  const hostname = (() => {
+    try { return new URL(url).hostname.replace("www.", ""); }
+    catch { return "link"; }
+  })();
+  const fallbackPreview = { title: hostname, description: "", image: null, siteName: hostname, url };
+
   try {
     const r = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(5000) });
     if (r.ok) {
       const d = await r.json();
       if (d.title && !d.error)
-        return { title: d.title, description: d.author_name ? `By ${d.author_name}` : "", image: d.thumbnail_url || null, siteName: d.provider_name || new URL(url).hostname.replace("www.", ""), url };
+        return { title: d.title, description: d.author_name ? `By ${d.author_name}` : "", image: d.thumbnail_url || null, siteName: d.provider_name || hostname, url };
     }
   } catch {}
   try {
@@ -31,8 +37,10 @@ async function fetchLinkPreview(url) {
     const { contents } = await res.json();
     const doc = new DOMParser().parseFromString(contents, "text/html");
     const m = (n) => doc.querySelector(`meta[property='${n}']`)?.getAttribute("content") || doc.querySelector(`meta[name='${n}']`)?.getAttribute("content") || null;
-    return { title: m("og:title") || doc.title || url, description: m("og:description") || m("description") || "", image: m("og:image") || null, siteName: m("og:site_name") || new URL(url).hostname.replace("www.", ""), url };
-  } catch { return null; }
+    return { title: m("og:title") || doc.title || hostname, description: m("og:description") || m("description") || "", image: m("og:image") || null, siteName: m("og:site_name") || hostname, url };
+  } catch {
+    return fallbackPreview;
+  }
 }
 
 function extractUrl(text) {
@@ -56,7 +64,7 @@ const MessageText = memo(({ text }) => {
 // ─── iPhone: rich link card ───────────────────────────────────────────────────
 const LinkCard = memo(({ preview, loading }) => {
   if (loading) return (
-    <div style={{ width: 238, borderRadius: 14, overflow: "hidden", background: "#1c1c1e" }}>
+    <div style={{ width: 238, borderRadius: 14, overflow: "hidden", background: "#1c1c1e", flexShrink: 0 }}>
       <div style={{ height: 130, background: "linear-gradient(90deg,#2a2a2a 25%,#333 50%,#2a2a2a 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.2s infinite" }} />
       <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
         {["72%", "44%"].map((w, i) => (
@@ -69,7 +77,7 @@ const LinkCard = memo(({ preview, loading }) => {
   const isVideo = /youtube|vimeo/i.test(preview.siteName || "");
   const domain = (() => { try { return new URL(preview.url).hostname.replace("www.", ""); } catch { return ""; } })();
   return (
-    <div style={{ width: 238, borderRadius: 14, overflow: "hidden", background: "#1c1c1e" }}>
+    <div style={{ width: 238, borderRadius: 14, overflow: "hidden", background: "#1c1c1e", flexShrink: 0 }}>
       {preview.image ? (
         <div style={{ position: "relative", height: 134 }}>
           <img src={preview.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} onError={(e) => { e.target.parentElement.style.display = "none"; }} />
@@ -140,11 +148,11 @@ const IPhoneShell = memo(({ message, preview, previewLoading }) => {
             <svg width="22" height="15" viewBox="0 0 24 17" fill="none"><rect x="1" y="1" width="14" height="14" rx="2.5" stroke="#007AFF" strokeWidth="1.8"/><path d="M15 5.5l7.5-3.5v12L15 10.5" stroke="#007AFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
         </div>
-        {/* Chat area — scrolls internally; hide scrollbar for clean look */}
-        <div className="iphone-chat" style={{ flex: 1, overflowY: "auto", overflowX: "hidden", background: "#000", padding: "9px 8px 5px", display: "flex", flexDirection: "column", gap: 3, alignItems: "flex-start", msOverflowStyle: "none", scrollbarWidth: "none" }}>
-          <div style={{ alignSelf: "center", fontSize: 9.5, color: "#636366", marginBottom: 7 }}>iMessage · Today 9:41 AM</div>
+        {/* Chat area — scrolls internally; children must not shrink */}
+        <div className="iphone-chat" style={{ flex: "1 1 0", minHeight: 0, overflowY: "auto", overflowX: "hidden", background: "#000", padding: "9px 8px 5px", display: "flex", flexDirection: "column", gap: 3, alignItems: "flex-start", msOverflowStyle: "none", scrollbarWidth: "none" }}>
+          <div style={{ alignSelf: "center", fontSize: 9.5, color: "#636366", marginBottom: 7, flexShrink: 0 }}>iMessage · Today 9:41 AM</div>
           {empty && !previewLoading && (
-            <div style={{ alignSelf: "center", marginTop: 18, display: "flex", flexDirection: "column", alignItems: "center", gap: 7 }}>
+            <div style={{ alignSelf: "center", marginTop: 18, display: "flex", flexDirection: "column", alignItems: "center", gap: 7, flexShrink: 0 }}>
               <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#1c1c1e", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="#48484a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
@@ -153,11 +161,11 @@ const IPhoneShell = memo(({ message, preview, previewLoading }) => {
           )}
           {(previewLoading || preview) && <LinkCard preview={preview} loading={previewLoading} />}
           {!empty && (
-            <div style={{ background: "#3c3c3e", borderRadius: "17px 17px 17px 4px", padding: "7px 11px", maxWidth: "80%", fontSize: 12, lineHeight: 1.45, color: "#fff", wordBreak: "break-word", textAlign: "left", whiteSpace: "pre-wrap", marginTop: 3 }}>
+            <div style={{ background: "#3c3c3e", borderRadius: "17px 17px 17px 4px", padding: "7px 11px", maxWidth: "80%", fontSize: 12, lineHeight: 1.45, color: "#fff", wordBreak: "break-word", textAlign: "left", whiteSpace: "pre-wrap", marginTop: 3, flexShrink: 0 }}>
               <MessageText text={message} />
             </div>
           )}
-          {!empty && <div style={{ fontSize: 9, color: "#48484a", paddingLeft: 2, marginTop: 2 }}>Delivered</div>}
+          {!empty && <div style={{ fontSize: 9, color: "#48484a", paddingLeft: 2, marginTop: 2, flexShrink: 0 }}>Delivered</div>}
         </div>
         {/* Input bar */}
         <div style={{ ...dg, flexShrink: 0, borderTop: "0.5px solid rgba(255,255,255,0.07)", padding: "6px 8px 11px", display: "flex", alignItems: "center", gap: 6 }}>
@@ -378,11 +386,11 @@ export default function App() {
 
   const handleTabClick = (tabId) => {
     if (tabId === "custom") { setActiveTab((t) => (t === "custom" ? null : "custom")); return; }
-    // All other tabs: one-click insert, no panel
-    if (tabId === "template") setMessage("Hi {name}, don't miss our exclusive offer just for you! Claim your deal now: https://sp.link/Demo24\n\nReply STOP to opt out.");
-    if (tabId === "shorturl") appendToMessage("https://sp.link/" + randomCode());
-    if (tabId === "landing")  appendToMessage("https://sp.link/SumPro25");
-    if (tabId === "optout")   appendToMessage("Reply STOP to unsubscribe.");
+    // All other tabs: one-click insert with real URLs that will unfurl
+    if (tabId === "template") setMessage("Hi {name}, don't miss this — check it out now:\nhttps://www.youtube.com/watch?v=LcZJkIc-HrY\n\nReply STOP to opt out.");
+    if (tabId === "shorturl") setMessage("https://youtu.be/LcZJkIc-HrY");
+    if (tabId === "landing")  setMessage("https://www.bbc.com/news/technology");
+    if (tabId === "optout")   setMessage("Reply STOP to unsubscribe.");
     setActiveTab(null);
   };
 
@@ -698,11 +706,8 @@ export default function App() {
                     <button className="btn-primary">Preview &amp; Send</button>
                   </div>
 
-                  {/* Trial / char count row */}
+                  {/* Character / parts row */}
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
-                    <p style={{ fontSize: 12, color: "#c53030" }}>
-                      Your account is in TRIAL MODE. Only the default test message can be sent.
-                    </p>
                     <span style={{ fontSize: 12.5, color: "#718096", whiteSpace: "nowrap" }}>
                       ⓘ Characters <strong style={{ color: "#1b2336" }}>{sms.len}</strong>
                       {" | "}Parts <strong style={{ color: "#1b2336" }}>{sms.parts}</strong>
